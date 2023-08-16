@@ -5,21 +5,29 @@ import ra.IShop;
 import java.util.List;
 import java.util.Scanner;
 
-public class Product implements IShop<Product> {
-    private String producId;
+public class Product implements IShop {
+    private String productId;
     private String productName;
     private float price;
-    private  String title;
+    private String title;
     private int catalogId;
-    private boolean status;
+    private boolean statusProduct;
 
-
-    public String getProducId() {
-        return producId;
+    public Product() {
+        this.productId = productId;
+        this.productName = productName;
+        this.price = price;
+        this.title = title;
+        this.catalogId = catalogId;
+        this.statusProduct = statusProduct;
     }
 
-    public void setProducId(String producId) {
-        this.producId = producId;
+    public String getProductId() {
+        return productId;
+    }
+
+    public void setProductId(String productId) {
+        this.productId = productId;
     }
 
     public String getProductName() {
@@ -54,118 +62,70 @@ public class Product implements IShop<Product> {
         this.catalogId = catalogId;
     }
 
-    public boolean isStatus() {
-        return status;
+    public boolean isStatusProduct() {
+        return statusProduct;
     }
 
-    public void setStatus(boolean status) {
-        this.status = status;
+    public void setStatusProduct(boolean statusProduct) {
+        this.statusProduct = statusProduct;
     }
 
-    public Product() {
-    }
-
-    public Product(String producId, String productName, float price, String title, int catalogId, boolean status) {
-        this.producId = producId;
-        this.productName = productName;
-        this.price = price;
-        this.title = title;
-        this.catalogId = catalogId;
-        this.status = status;
-    }
     @Override
-    public void inputData(List<Product> listProduc) {
-        Scanner scanner = new Scanner(System.in);
-        boolean isCheckId = true;
+    public void inputData(Scanner scanner, List<Categories> categoriesList, List<Product> productList) {
+        System.out.println("Nhập vào mã sản phẩm :");
+        boolean checkProductId = true;
         do {
-            boolean isCheck = true;
-            System.out.println("Mã sản phẩm :");
-            String producId = scanner.nextLine();
-            if (producId.length()>5){
-                if (producId.charAt(0)=='P'){
-                    for (Product prod : listProduc) {
-                        if (!prod.producId.equalsIgnoreCase(producId)){
-                            isCheck = false;
-                        }
+            this.productId = scanner.nextLine();
+            boolean isExit = false;
+            for (Product product: productList) {
+                if (product.productId.equals(this.productId)){
+                    isExit = true;
+                    break;
+                }
+            }
+            if (isExit){
+                System.err.println("Mã sản phẩm đã tồn tại, vui lòng nhập lại.");
+            }else {
+                if (this.productId.length()!=5){
+                    System.err.println("Mã sản phẩm gồm 5 ký tự, vui lòng nhập lại.");
+                }else {
+                    if (this.productId.charAt(0)=='P'){
+                        break;
+                    }else {
+                        System.err.println("Mã sản phẩm phải bắt đầu là P, vui lòng nhập lại.");
                     }
                 }
             }
-            if (!isCheck){
-                this.producId = producId;
-                isCheckId=false;
+        }while (checkProductId);
+        System.out.println("Nhập tên sản phẩm :");
+        boolean checkProductName = true;
+        do {
+            this.productName = scanner.nextLine();
+            boolean isExit = false;
+            for (Product product: productList) {
+                if (product.productName.equals(this.productName)){
+                    isExit = true;
+                    break;
+                }
+            }
+            if (isExit){
+                System.err.println("Tên sản phẩm đã tồn tại, vui lòng nhập lại.");
             }else {
-                System.err.println("Mã sản phẩm đã tồn tại, vui lòng nhập lại.");
+                break;
             }
-        }while (isCheckId);
-
-        boolean isCheckName = true;
-        do {
-            boolean isCheck = false;
-            System.out.println("Tên sản phẩm:");
-            String productName = scanner.nextLine();
-            for ( Product element:listProduc) {
-                if (element.productName.equalsIgnoreCase(productName)){
-                    System.err.println("Mã đã tồn tại, vui lòng nhập lại.");
-                    isCheck = true;
-                }
-            }
-            if (!isCheck){
-                this.productName = productName;
-                isCheckName = false;
-            }
-        } while (isCheckName);
-
-        do {
-            System.out.println("Giá sản phẩm:");
-            this.price = Float.parseFloat(scanner.nextLine());
-        }while (this.price<0);
-
-        System.out.println("Tiêu đề:");
+        }while (checkProductName);
+        System.out.println("Nhập vào giá sản phẩm :");
+        this.price = Float.parseFloat(scanner.nextLine());
+        System.out.println("Nhập vào tiêu đề sản phẩm :");
         this.title = scanner.nextLine();
-
-
-        do {
-            System.out.println("Trạng thái: ");
-            System.out.println("1. Đã bán");
-            System.out.println("2. Đang bán");
-            byte choice = Byte.parseByte(scanner.nextLine());
-            switch (choice){
-                case 1:
-                    this.status = true;
-                    return;
-                case 2:
-                    this.status = false;
-                    return;
-                default:
-                    System.out.println("Chọn từ 1-2");
-                    break;
-            }
-        }while (true);
+        System.out.println("Nhập vào trạng thái sản phẩm :");
+        this.statusProduct = Boolean.parseBoolean(scanner.nextLine());
     }
 
-    public void listCategories(List<Categories> tList) {
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("Danh mục:");
-        for (Categories cate: tList) {
-            cate.displayData();
-        }
-        boolean isExit = true;
-        do {
-            this.catalogId = Integer.parseInt(scanner.nextLine());
-            for (Categories cate: tList) {
-                if (cate.getCatalogId()==this.catalogId){
-                    isExit = false;
-                    break;
-                }else {
-                    System.err.println("Mã không tồn  tại, vui lòng nhập  lại.");
-                }
-            }
-        }while (isExit);
-    }
     @Override
     public void displayData() {
-        String statusProduct = this.status?"Còn hàng":" Hết hàng";
-
-        System.out.printf("Mã sản phẩm: %s - Tên sản phẩm: %s - Giá: %f - Trạng thái: %s \n", this.producId, this.productName, this.price,statusProduct  );
+        String displayProductStatus=this.statusProduct?"Tồn kho":"Đã bán";
+        System.out.printf("Mã sản phẩm: %s - Tên sản phẩm: %s - Giá sản phẩm: %f\n", this.productId, this.productName, this.price);
+        System.out.printf("Tiều đề sản phẩm: %s - Mã danh mục mà sản phẩm thuộc về: %d - Trạng thái sản phẩm: %s\n",this.title,this.catalogId,displayProductStatus);
     }
 }
