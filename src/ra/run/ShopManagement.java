@@ -1,4 +1,4 @@
-package ra.run;
+package ra;
 
 import ra.entity.Categories;
 import ra.entity.Product;
@@ -6,268 +6,314 @@ import ra.entity.Product;
 import java.util.*;
 
 public class ShopManagement {
-    static  List<Categories> categoriesList = new ArrayList<>();
-
-    static List<Product>productList = new ArrayList<>();
-
+    static List<Categories> categoriesList = new ArrayList<>();
+    static List<Product> productList = new ArrayList<>();
+    static Scanner scanner = new Scanner(System.in);
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        listDataCategories();
-        listDataProduct();
-        categorieStatus();
         do {
-            menuShopManager();
+            System.out.println("************SHOP MANAGEMENT***************");
+            System.out.println("1.Quản lý danh mục sản phẩm");
+            System.out.println("2.Quản lý sản phẩm");
+            System.out.println("3.Thoát");
+            System.out.println("Sự lựa chọn của bạn là: ");
             int choice = Integer.parseInt(scanner.nextLine());
             switch (choice){
                 case 1:
-                    CatalogManager(scanner);
+                    ShopManagement.catalogMenu(scanner);
                     break;
                 case 2:
-                    producManager(scanner);
-                    break;
-                case 0:
-                    System.exit(0);
-                    break;
-                default: break;
-            }
-        }while (true);
-
-    }
-
-    public static void CatalogManager(Scanner scanner){
-        boolean isExit = true;
-        do {
-            menuCatalogManager();
-            int choice = Integer.parseInt(scanner.nextLine());
-            switch (choice){
-                case 1:
-                    Categories categories = new Categories();
-                    categories.inputData(categoriesList);
-                    categoriesList.add(categories);
-                    System.out.println("Đã thêm xong.");
-                    break;
-                case 2:
-                    Iterator<Categories> categoriesIterator  = categoriesList.iterator();
-                    while (categoriesIterator.hasNext()){
-                        Categories categories1 = categoriesIterator.next();
-                        categories1.displayData();
-                    }
+                    ShopManagement.productMenu(scanner);
                     break;
                 case 3:
-                    System.out.println("Mã danh mục cần cập nhật:");
-                    int catalogId = Integer.parseInt(scanner.nextLine());
-                    boolean isSearch =false;
-                    Iterator<Categories> categoriesIterator2  = categoriesList.iterator();
-                    while (categoriesIterator2.hasNext()){
-                        Categories categories2 = categoriesIterator2.next();
-                        int testId = categories2.getCatalogId();
-                        if (catalogId ==testId){
-                            System.out.printf("Tên sản phẩm cũ: $s\n",categories2.getCatalogName());
-                            System.out.println("Cập nhật lại tên:");
-                            String newName = scanner.nextLine();
-                            categories2.setCatalogName(newName);
-                            System.out.println("Đã cập nhật xong.");
-                            isSearch = true;
-                            break;
-                        }
-                    }
-                    if (!isSearch){
-                        System.out.println("Tên tìm kiếm không tồn tại.");
-                    }
+                    System.exit(0);
+                    break;
+                default:
+                    System.err.println("Vui lòng chọn từ 1-3");
+            }
+        }while (true);
+    }
+    public static void catalogMenu(Scanner scanner){
+        boolean isExit = true;
+        do {
+            System.out.println("*****************CATALOG MANAGEMENT***************");
+            System.out.println("1.Thêm mới danh mục");
+            System.out.println("2.Hiển thị thông tin các danh mục");
+            System.out.println("3.Cập nhật tên danh mục theo mã danh mục");
+            System.out.println("4.Xóa danh mục theo mã danh mục (Danh mục chưa chứa sản phẩm)");
+            System.out.println("5.Thoát");
+            System.out.println("Lựa chọn của bạn là: ");
+            int choiceCatalogMenu = Integer.parseInt(scanner.nextLine());
+            switch (choiceCatalogMenu){
+                case 1:
+                    ShopManagement.inputCatalog();
+                    break;
+                case 2:
+                    ShopManagement.displayCatalog();
+                    break;
+                case 3:
+                    ShopManagement.updateCatalog();
                     break;
                 case 4:
-                    System.out.println("Nhập mã danh mục muốn xóa: ");
-                    int delCategories = Integer.parseInt(scanner.nextLine());
-                    Iterator<Categories> categoriesIterator3  = categoriesList.iterator();
-                    boolean isDel = false;
-                    while (categoriesIterator3.hasNext()){
-                        Categories categories3 = categoriesIterator3.next();
-                        int test = categories3.getCatalogId();
-                        if ( test== delCategories){
-
-                            if (categories3.getProductArrayList()!=null){
-                                categoriesList.remove(categories3);
-                                isDel = true;
-                            }else {
-                                System.out.println("Danh mục đã có sản phẩm.");
-                            }
-                            break;
-                        }
-                    }
-                    if (!isDel){
-                        System.out.println("Không tồn tại mã danh mục");
-                    }
+                    ShopManagement.deleteCatalog();
                     break;
                 case 5:
                     isExit = false;
                     break;
+                default:
+                    System.err.println("Vui lòng nhập từ 1-5");
             }
         }while (isExit);
     }
-    public static void  producManager(Scanner scanner){
+    public static void inputCatalog(){
+        Categories catalog = new Categories();
+        catalog.inputData(scanner, categoriesList,productList);
+        categoriesList.add(catalog);
+    }
+    public static void displayCatalog(){
+        for (Categories catalog: categoriesList) {
+            catalog.displayData();
+        }
+    }
+    public static void updateCatalog(){
+        if (categoriesList.size()==0){
+            System.err.println("Không có danh mục.");
+            return;
+        }
+        boolean isExit= true;
+        System.out.println("Nhập mã danh mục muốn cập nhật :");
+        do {
+            int updateId = Integer.parseInt(scanner.nextLine());
+            boolean checkId = false;
+            for (Categories catalog : categoriesList) {
+                if (catalog.getCatalogId()==updateId){
+                    System.out.println("Nhập tên mới của danh mục :");
+                    catalog.setCatalogName(scanner.nextLine());
+                    System.out.println("Đã cập nhật tên danh mục thành công.");
+                    checkId = true;
+                    isExit = false;
+                }
+            }
+            if (!checkId){
+                System.err.println("Mã danh mục không tồn tại, vui lòng nhập lại.");
+            }
+        }while (isExit);
+    }
+    public static void deleteCatalog(){
+        if (categoriesList.size()==0){
+            System.err.println("Không có danh mục :");
+            return;
+        }
+        boolean isExit = true;
+        System.out.println("Nhập mã danh mục muốn xóa :");
+        do {
+            int deleteId = Integer.parseInt(scanner.nextLine());
+            boolean checkProduct = false;
+            boolean checkDeleteId = false;
+            for (Product product: productList) {
+                if (product.getCatalogId()==deleteId){
+                    System.err.println("Trong danh mục có chứa sản phẩm, vui lòng không xóa danh mục.");
+                    checkProduct = true;
+                    isExit = false;
+                    break;
+                }
+            }
+            if (!checkProduct){
+                for (Categories catalog : categoriesList) {
+                    if (catalog.getCatalogId()==deleteId){
+                        categoriesList.remove(catalog);
+                        System.out.println("Đã xóa danh mục thành công.");
+                        checkDeleteId = true;
+                        isExit = false;
+                        break;
+                    }
+                }
+                if (!checkDeleteId){
+                    System.err.println("Mã danh mục không tồn tại, vui lòng nhập lại.");
+                }
+            }
+        }while (isExit);
+    }
+    public static void productMenu(Scanner scanner){
         boolean isExit = true;
         do {
-            menuProducManager();
-            int choice = Integer.parseInt(scanner.nextLine());
-            switch (choice){
+            System.out.println("***************** PRODUCT MANAGEMENT**************");
+            System.out.println("1. Thêm mới sản phẩm (Khi thêm cho phép chọn danh mục sản phẩm mà sản phẩm thuộc về)");
+            System.out.println("2. Hiển thị thông tin sản phẩm");
+            System.out.println("3. Cập nhật giá sản phẩm theo mã sản phẩm");
+            System.out.println("4. Xóa sản phẩm theo mã sản phẩm");
+            System.out.println("5. Sắp xếp sản phẩm theo giá sản phẩm tăng dần");
+            System.out.println("6. Sắp xếp sản phẩm theo tên tăng dần");
+            System.out.println("7. Thống kê số lượng sản phẩm theo danh mục sản phẩm");
+            System.out.println("8. Tìm kiếm sản phẩm theo tên sản phẩm");
+            System.out.println("9. Thoát ");
+            System.out.println("Lựa chọn của bạn là: ");
+            int choiceProductMenu = Integer.parseInt(scanner.nextLine());
+            switch (choiceProductMenu){
                 case 1:
-                    Product product = new Product();
-                    product.inputData(productList);
-                    product.listCategories(categoriesList);
-                    productList.add(product);
-                    System.out.println("Đã thêm xong.");
+                    ShopManagement.inputProduct();
                     break;
                 case 2:
-                    Iterator<Product> productIterator = productList.iterator();
-                    while (productIterator.hasNext()){
-                        Product product1 = productIterator.next();
-                        product1.displayData();
-                    }
+                    ShopManagement.displayProduct();
                     break;
                 case 3:
-                    System.out.println("Nhập mã sản phẩm :");
-                    String productName = scanner.nextLine();
-                    for (Product product3 : productList
-                    ) {
-                        if (product3.getProducId().toLowerCase().equals(productName.toLowerCase())){
-                            System.out.printf("Giá bán cũ: %f \n", product3.getPrice());
-                            System.out.println("Nhập giá bán mới : ");
-                            float newPrice = Float.parseFloat(scanner.nextLine());
-                            product3.setPrice(newPrice);
-                        }
-                    }
-                    System.out.println("Đã cập nhật xong.");
+                    ShopManagement.updatePriceByProductId();
                     break;
                 case 4:
-                    System.out.println("Nhập mã sản phẩm muốn xóa : ");
-                    String delName = scanner.nextLine();
-                    Iterator<Product> productIterator1 = productList.iterator();
-
-                    while (productIterator1.hasNext()){
-                        Product product1 = productIterator1.next();
-                        if (product1.getProducId().toLowerCase().contains(delName.toLowerCase())){
-                            productList.remove(product1);
-                        }else {
-                            System.out.println("Mã sản phẩm không tồn tại.");
-                        }
-                    }
+                    ShopManagement.deleteProductByProductId();
                     break;
                 case 5:
-                    productList.sort(new Comparator<Product>() {
-                        @Override
-                        public int compare(Product o1, Product o2) {
-                            return (int) (o1.getPrice()-o2.getPrice());
-                        }
-                    });
+                    ShopManagement.sortProductByPrice();
                     break;
                 case 6:
-                    productList.sort(new Comparator<Product>() {
-                        @Override
-                        public int compare(Product o1, Product o2) {
-                            return o1.getProductName().compareTo(o2.getProductName());
-                        }
-                    });
+                    ShopManagement.sortProductByProductName();
                     break;
                 case 7:
-                    for (Categories cate : categoriesList) {
-                        int cnt =0;
-                        for (Product pro : productList) {
-                            if (pro.getCatalogId()==cate.getCatalogId()){
-                                cnt++;
-                            }
-                        }
-                        System.out.printf("%s : %d \n", cate.getCatalogName(),cnt);
-                    }
+                    ShopManagement.getProductInCatalog();
                     break;
                 case 8:
-                    System.out.println("Nhập tên cần tìm kiếm: ");
-                    String searchName = scanner.nextLine();
-                    Iterator<Product> productIterator2 = productList.iterator();
-                    while (productIterator2.hasNext()){
-                        Product product1 = productIterator2.next();
-                        if (product1.getProductName().toLowerCase().contains(searchName.toLowerCase())){
-                            product1.displayData();
-                            break;
-                        }
-                    }
+                    ShopManagement.searchProductByName();
                     break;
                 case 9:
                     isExit = false;
                     break;
-
+                default:
+                    System.err.println("Vui lòng chọn từ 1-9");
             }
         }while (isExit);
     }
+    public static void inputProduct(){
+        Product productNew = new Product();
+        productNew.inputData(scanner, categoriesList,productList);
+        System.out.println("********CATALOG***********");
+        for (int i = 0; i < categoriesList.size(); i++) {
+            System.out.printf("%d. %s\n",i+1,categoriesList.get(i).getCatalogName());
+        }
+        System.out.println("Chọn danh mục: ");
+        int choiceCatalog = Integer.parseInt(scanner.nextLine());
+        int catalogIdChoice = categoriesList.get(choiceCatalog-1).getCatalogId();
+        productNew.setCatalogId(catalogIdChoice);
+        productList.add(productNew);
+    }
+    public static void displayProduct(){
+        for (Product product: productList) {
+            product.displayData();
+        }
+    }
+    public static void updatePriceByProductId(){
+        if (productList.size()==0){
+            System.err.println("Không có sản phẩm nào.");
+            return;
+        }
+        boolean isExit = true;
+        System.out.println("Nhập mã sản phẩm muốn cập nhật :");
+        do {
+            String updateId = scanner.nextLine();
+            boolean checkId = false;
+            for (Product productUpdate : productList) {
+                if (productUpdate.getProductId().equals(updateId)){
+                    System.out.println("Nhập giá mới của sản phẩm :");
+                    productUpdate.setPrice(Float.parseFloat(scanner.nextLine()));
+                    System.out.println("Đã cập nhật giá sản phẩm thành công.");
+                    checkId = true;
+                    isExit = false;
+                }
+            }
+            if (!checkId){
+                System.err.println("Mã sản phẩm không tồn tại, vui lòng nhập lại.");
+            }
+        }while (isExit);
+    }
+    public static void deleteProductByProductId(){
+        if (productList.size()==0){
+            System.err.println("Không có sản phẩm nào.");
+            return;
+        }
+        boolean isExit = true;
+        System.out.println("Nhập mã sản phẩm muốn xóa :");
+        do {
+            String deleteId = scanner.nextLine();
+            boolean checkId = false;
+            for (Product productDelete : productList) {
+                if (productDelete.getProductId().equals(deleteId)){
+                    productList.remove(productDelete);
+                    System.out.println("Đã xóa sản phẩm thành công.");
+                    checkId = true;
+                    isExit = false;
+                    break;
+                }
+            }
+            if (!checkId){
+                System.err.println("Mã sản phẩm không tồn tại, vui lòng nhập lại.");
+            }
+        }while (isExit);
+    }
+    public static void sortProductByPrice(){
+        productList.sort(new Comparator<Product>() {
+            @Override
+            public int compare(Product o1, Product o2) {
+                return (int) (o1.getPrice() - o2.getPrice());
+            }
+        });
+        System.out.println("Đã sắp xếp sản phẩm theo giá sản phẩm tăng dần.");
+    }
+    public static void sortProductByProductName(){
+        productList.sort(new Comparator<Product>() {
+            @Override
+            public int compare(Product o1, Product o2) {
+                return o1.getProductName().compareTo(o2.getProductName());
+            }
+        });
+        System.out.println("Đã sắp xếp sản phẩm theo tên tăng dần.");
+    }
+    public static void getProductInCatalog(){
+        if (productList.size()==0){
+            System.err.println("Không có sản phẩm nào.");
+            return;
+        }
+        int[] arrCatalog = new int[categoriesList.size()];
+        int arrCatalogIndex =0;
+        for (int i = 0; i < categoriesList.size(); i++) {
+            boolean check = false;
+            for (int j = i+1; j < categoriesList.size() ; j++) {
+                if ((categoriesList.get(j).getCatalogId())==categoriesList.get(i).getCatalogId()) {
+                    check= true;
+                    break;
+                }
+            }
+            if (!check){
+                arrCatalog[arrCatalogIndex]= categoriesList.get(i).getCatalogId();
+                arrCatalogIndex++;
+            }
+        }
 
-    public static void categorieStatus (){
-        for (Categories categoies : categoriesList) {
-            int cnt =0;
-            for (Product pro : productList) {
-                if (pro.getCatalogId()==categoies.getCatalogId()){
+        int[] arrCountCatalog = new int[arrCatalogIndex];
+
+        for (int i = 0; i < arrCatalogIndex; i++) {
+            int cnt = 0;
+            for (Product product : productList) {
+                if (arrCatalog[i] == product.getCatalogId()) {
                     cnt++;
                 }
             }
-            if (cnt==0){
-                categoies.setStatus(false);
-            }else {
-                categoies.setStatus(true);
-            }
+            arrCountCatalog[i]= cnt;
+        }
+        for (int i = 0; i < arrCatalogIndex; i++) {
+            System.out.println("Danh mục "+arrCatalog[i]+" có "+arrCountCatalog[i]+" sản phẩm");
         }
     }
-
-    public static void menuShopManager(){
-        System.out.println("*************************SHOP MANAGEMENT***************");
-        System.out.println("1. Quản lý danh mục sản phẩm");
-        System.out.println("2. Quản lý sản phẩm");
-        System.out.println("3. Thoát");
-    }
-    public static void menuCatalogManager(){
-        System.out.println("***************** CATALOG MANAGEMENT**************");
-        System.out.println("1. Thêm mới danh mục");
-        System.out.println("2. Hiển thị thông tin các danh mục");
-        System.out.println("3. Cập nhật tên danh mục theo mã danh mục");
-        System.out.println("4. Xóa danh mục theo mã danh mục");
-        System.out.println("5. Thoát ");
-    }
-    public static void menuProducManager(){
-        System.out.println(" ***************** PRODUCT MANAGEMENT**************");
-        System.out.println("1. Thêm mới sản phẩm ");
-        System.out.println("2. Hiển thị thông tin sản phẩm");
-        System.out.println("3. Cập nhật giá sản phẩm theo mã sản phẩm");
-        System.out.println("4. Xóa sản phẩm theo mã sản phẩm");
-        System.out.println("5. Sắp xếp sản phẩm theo giá sản phẩm tăng dần");
-        System.out.println("6. Sắp xếp sản phẩm theo tên tăng dần");
-        System.out.println("7. Thống kê số lượng sản phẩm theo danh mục sản phẩm");
-        System.out.println("8. Tìm kiếm sản phẩm theo tên sản phẩm");
-        System.out.println("9. Thoát (Quay lại Shop Management)");
-
-    }
-
-
-    public static void listDataCategories(){
-        Categories categories = new Categories(01, "A",false);
-        categoriesList.add(categories);
-        categories = new Categories(02, "B",true);
-        categoriesList.add(categories);
-        categories = new Categories(03, "C",true);
-        categoriesList.add(categories);
-        categories = new Categories(04, "D",false);
-        categoriesList.add(categories);
-        categories = new Categories(05, "E",true);
-        categoriesList.add(categories);
-    }
-    public  static  void listDataProduct(){
-        Product product = new Product("P00001","A",10,"A++",01,true);
-        productList.add(product);
-        product = new Product("P00002","B",20,"B++",02,false);
-        productList.add(product);
-        product = new Product("P00003","C",30,"C++",03,true);
-        productList.add(product);
-        product = new Product("P00004","D",40,"D++",04,false);
-        productList.add(product);
-        product = new Product("P00005","E",50,"E++",05,true);
-
-        productList.add(product);
-
+    public static void searchProductByName(){
+        System.out.println("Nhập vào tên sản phẩm cần tìm kiếm :");
+        String name = scanner.nextLine();
+        boolean isSearch = false;
+        System.out.println("Thông tin các sản phẩm tìm kiếm : ");
+        for (Product product : productList) {
+            if (product.getProductName().toUpperCase().contains(name.toUpperCase())){
+                product.displayData();
+                isSearch= true;
+            }
+        }
+        if (!isSearch){
+            System.err.println("Không tìm thấy sản phẩm cần tìm kiếm.");
+        }
     }
 }
