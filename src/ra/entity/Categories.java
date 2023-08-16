@@ -1,20 +1,19 @@
 package ra.entity;
+
 import ra.IShop;
+
 import java.util.List;
 import java.util.Scanner;
 
-public class Categories implements IShop<Categories> {
+public class Categories implements IShop {
     private int catalogId;
     private String catalogName;
     private boolean status;
-    private List<Product> productArrayList;
 
-    public List<Product> getProductArrayList() {
-        return productArrayList;
-    }
-
-    public void setProductArrayList(List<Product> productArrayList) {
-        this.productArrayList = productArrayList;
+    public Categories() {
+        this.catalogId = catalogId;
+        this.catalogName = catalogName;
+        this.status = status;
     }
 
     public int getCatalogId() {
@@ -37,65 +36,53 @@ public class Categories implements IShop<Categories> {
         return status;
     }
 
-    public void setStatus(boolean status) {
+    public void setStatus() {
         this.status = status;
     }
-    public Categories() {
-    }
 
-    public Categories(List<Product> productArrayList) {
-        this.productArrayList = productArrayList;
-    }
-
-    public Categories(int catalogId, String catalogName, boolean status) {
-        this.catalogId = catalogId;
-        this.catalogName = catalogName;
-        this.status = status;
-    }
     @Override
-    public void inputData(List<Categories> list) {
-        Scanner scanner = new Scanner(System.in);
-        boolean isCheckId = true;
+    public void inputData(Scanner scanner, List<Categories> categoriesList, List<Product> productList) {
+        System.out.println("Nhập vào mã danh mục sản phẩm :");
+        boolean checkCatalogId= true;
         do {
-            boolean isCheck = false;
-            System.out.println("Mã danh Mục");
-            int cateId = Integer.parseInt(scanner.nextLine());
-            for ( Categories element:list) {
-                if (element.getCatalogId()==cateId){
-                    System.err.println("Mã đã tồn tại,vui lòng nhập  lại.");
-                    isCheck = true;
+            this.catalogId= Integer.parseInt(scanner.nextLine());
+            boolean isExit = false;
+            for (Categories catalog: categoriesList) {
+                if (catalog.catalogId==this.catalogId){
+                    isExit = true;
+                    break;
                 }
             }
-            if (!isCheck){
-                this.catalogId = cateId;
-                isCheckId = false;
+            if (isExit){
+                System.err.println("Mã danh mục sản phẩm đã tồn tại, vui lòng nhập lại.");
+            }else {
+                break;
             }
-        } while (isCheckId);
-
-        boolean isCheckName = true;
+        }while (checkCatalogId);
+        System.out.println("Nhập vào tên danh mục sản phẩm :");
+        boolean checkCatalogName = true;
         do {
-            boolean isCheck = false;
-            System.out.print("Nhập tên danh Mục");
-            String catalogName = scanner.nextLine();
-            for ( Categories element:list) {
-                if (element.getCatalogName().equalsIgnoreCase(catalogName)){
-                    System.err.println("Tên danh mục đã tồn tại, vui lòng nhập lại.");
-                    isCheck = true;
+            this.catalogName= scanner.nextLine();
+            boolean isExit = false;
+            for (Categories catalog: categoriesList) {
+                if (catalog.catalogName.equals(this.catalogName)){
+                    isExit = true;
+                    break;
                 }
-
             }
-            if (!isCheck){
-                this.catalogName = catalogName;
-                isCheckName = false;
+            if (isExit){
+                System.err.println("Tên danh mục sản phẩm đã tồn tại, vui lòng nhập lại.");
+            }else {
+                break;
             }
-        } while (isCheckName);
-
+        }while (checkCatalogName);
+        System.out.println("Nhập vào trạng thái danh mục :");
+        this.status = Boolean.parseBoolean(scanner.nextLine());
     }
-
 
     @Override
     public void displayData() {
-        String displayStatus = this.status?"Có hàng":"Hết hàng";
-        System.out.printf("Mã danh mục: %d - Tên danh mục: %s - Trạng thái: %s  \n ", this.catalogId, this.catalogName, displayStatus);
+       String dispalyStatus=this.status?"Có hàng":"Hết hàng";
+        System.out.printf("Mã danh mục: %d - Tên danh mục: %s - Trạng thái danh mục: %s\n",this.catalogId,this.catalogName,dispalyStatus);
     }
 }
